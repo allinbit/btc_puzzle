@@ -1,20 +1,19 @@
 import hashlib
 import ecdsa
 import random
-import threading
-
-lock = threading.Lock()
-found = False
+from multiprocessing import Process, Event
 
 def binary_to_hex(bin_string):
     return hex(int(bin_string, 2))[2:].zfill(len(bin_string) // 4)
 
-def worker(num_zeros, num_ones):
-    global found
+def worker(num_zeros, num_ones, stop_event):
 
     target_hash = "20d45a6a762535700ce9e0b216e31994335db8a5"
 
-    while not found:
+    while True:
+        if stop_event.is_set():
+            break
+
         bits = ['0'] * num_zeros + ['1'] * (num_ones - 1)
         random.shuffle(bits)
 
@@ -35,20 +34,31 @@ def worker(num_zeros, num_ones):
         hashed_compressed_public_key = ripemd160_hash.digest().hex()
 
         if hashed_compressed_public_key == target_hash:
-            with lock:
-                if not found:
-                    found = True
-                    print(private_key_hex)
-                    print("hash160:", hashed_compressed_public_key)
-                    print("Target hash found!")
+            print(private_key_hex)
+            print("hash160:", hashed_compressed_public_key)
+            print("Target hash found!")
 
-num_threads = 8
-threads = []
+            stop_event.set()
+            break
 
-for _ in range(num_threads):
-    t = threading.Thread(target=worker, args=(31, 35))
-    t.start()
-    threads.append(t)
+def main():
+    num_processes = 4
+    processes = []
+    stop_event = Event()
 
-for t in threads:
-    t.join()
+    for _ in range(num_processes):
+        process = Process(target=worker, args=(31, 35, stop_event))
+        processes.append(process)
+
+    for process in processes:
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    if stop_event.is_set():
+        for process in processes:
+            process.terminate()
+
+if __name__ == '__main__':
+    main()
