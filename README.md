@@ -16,7 +16,7 @@ Step 3: Modify the 'process' value, initial is {Process(target=worker, args=(31,
 
 In addition
 -
-Change the value of 'num_threads' to use more threads for the calculation
+Change the value of 'num_processes' to use more task for the calculation
 
 Good Luck!
 -
