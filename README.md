@@ -12,7 +12,7 @@ Step 1: Modify the 'target_hash' value, it's public key hashed value(hash 160)
 
 Step 2: Modify the 'private_key_bin' value, initial is {'0' * (256 - 66) + private_key_bin}, just change '66' to the number of the puzzle
 
-Step 3: Modify the 't' value, initial is {threading.Thread(target=worker, args=(31, 35))}, change '31' to the number of 0 and '35' to number of 1
+Step 3: Modify the 'process' value, initial is {Process(target=worker, args=(31, 35, stop_event))}, change '31' to the number of 0 and '35' to number of 1
 
 In addition
 -
